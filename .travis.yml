@@ -1,17 +1,19 @@
+sudo: required
 language: php
+dist: trusty
 
 php:
-  - 7.0
+  - 7.1
 
 install:
   - travis_retry composer install --no-interaction --prefer-dist --no-suggest
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+  - ./vendor/laravel/dusk/bin/chromedriver-linux &
   - cp .env.example .env          # Create a new .env file
   - php artisan key:generate      # Generate application key
 
 before_script:
-  - phantomjs --webdriver=127.0.0.1:4444 &  # Start PhantomJS driver
-  - sleep 10                                 # Give PhantomJS and Artisan time to start
   - php artisan serve &                     # Start server
-  - sleep 10                                 # Give PhantomJS and Artisan time to start
 
 script: php artisan dusk
